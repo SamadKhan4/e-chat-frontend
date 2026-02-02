@@ -86,6 +86,9 @@ const Chat = () => {
 
   // Handle incoming messages
   const handleNewMessage = (message) => {
+    // Null safety check
+    if (!message || !message.chat) return;
+    
     if (activeChat && message.chat === activeChat._id) {
       setMessages(prev => [...prev, message]);
     }
@@ -99,9 +102,26 @@ const Chat = () => {
       )
     );
   };
+  
+  // Handle typing indicators
+  const [isTyping, setIsTyping] = useState(false);
+  
+  const handleTyping = () => {
+    setIsTyping(true);
+  };
+  
+  const handleStopTyping = () => {
+    setIsTyping(false);
+  };
 
   // Initialize socket
   const socket = useSocket(user, handleNewMessage);
+  
+  // Set up typing event listeners
+  if (socket) {
+    socket.on('typing', handleTyping);
+    socket.on('stop_typing', handleStopTyping);
+  }
 
   // Fetch chats when user is available
   if (user && chats.length === 0) {
@@ -138,6 +158,10 @@ const Chat = () => {
           onChatSelect={(chat) => {
             setActiveChat(chat);
             fetchMessages(chat._id);
+            // Join the chat room
+            if (socket) {
+              socket.emit('join_room', chat._id);
+            }
           }}
         />
         
@@ -164,8 +188,8 @@ const Chat = () => {
               </div>
             </div>
             
-            <MessageList messages={messages} currentUser={user} />
-            <MessageInput onSendMessage={sendMessage} activeChat={activeChat} />
+            <MessageList messages={messages} currentUser={user} isTyping={isTyping} />
+            <MessageInput onSendMessage={sendMessage} activeChat={activeChat} socket={socket} />
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center bg-gray-50">

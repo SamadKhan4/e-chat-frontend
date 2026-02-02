@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-useless-catch */
 import { createContext, useState } from 'react';
 import axios from 'axios';
