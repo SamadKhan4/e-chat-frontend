@@ -8,10 +8,13 @@ let socketInstance = null;
 export const useSocket = (user, onMessageReceived) => {
   useEffect(() => {
     if (user && !socketInstance) {
+      // Extract token from document.cookie
+      const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+      
       socketInstance = io(SOCKET_URL, {
         withCredentials: true, // Enable cookies
         auth: {
-          // No need to send token in auth since it will be sent via cookies
+          token: token // Send token in auth as backup
         }
       });
       
