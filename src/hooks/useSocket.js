@@ -9,9 +9,15 @@ export const useSocket = (user, onMessageReceived) => {
   useEffect(() => {
     if (user && !socketInstance) {
       // Extract token from document.cookie
-      const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+      const cookieToken = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+      
+      // Also check localStorage as fallback
+      const localStorageToken = localStorage.getItem('token');
+      
+      const token = cookieToken || localStorageToken;
       
       console.log('Connecting socket with token:', !!token);
+      console.log('Token source - Cookie:', !!cookieToken, 'LocalStorage:', !!localStorageToken);
       
       socketInstance = io(SOCKET_URL, {
         withCredentials: true,

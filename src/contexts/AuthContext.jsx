@@ -55,6 +55,7 @@ export const AuthProvider = ({ children }) => {
       // Store token in localStorage as fallback
       setToken(response.data.token);
       setUser(response.data);
+      console.log('Login successful, token stored');
       return response.data;
     } catch (error) {
       throw error;
@@ -75,6 +76,7 @@ export const AuthProvider = ({ children }) => {
       // Store token in localStorage as fallback
       setToken(response.data.token);
       setUser(response.data);
+      console.log('Registration successful, token stored');
       return response.data;
     } catch (error) {
       throw error;
