@@ -2,7 +2,11 @@
 import { useState } from 'react';
 import axios from 'axios';
 
-const API_URL = 'https://e-chat-production.up.railway.app/api';
+// Create an instance of axios with credentials enabled
+const api = axios.create({
+  baseURL: 'https://e-chat-production.up.railway.app/api',
+  withCredentials: true,
+});
 
 const CreateChatModal = ({ isOpen, onClose, onCreateChat, currentUser }) => {
   const [userId, setUserId] = useState('');
@@ -16,7 +20,7 @@ const CreateChatModal = ({ isOpen, onClose, onCreateChat, currentUser }) => {
     try {
       // No need to send token in headers since it's in cookies
       // Send email instead of userId
-      const response = await axios.post(`${API_URL}/chat`, { email: userId });
+      const response = await api.post('/chat', { email: userId });
       
       onCreateChat(response.data);
       setUserId('');

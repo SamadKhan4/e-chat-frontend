@@ -8,6 +8,12 @@ import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 import CreateChatModal from './CreateChatModal';
 
+// Create an instance of axios with credentials enabled
+const api = axios.create({
+  baseURL: 'https://e-chat-production.up.railway.app/api',
+  withCredentials: true,
+});
+
 const API_URL = 'https://e-chat-production.up.railway.app/api';
 
 const Chat = () => {
@@ -20,13 +26,13 @@ const Chat = () => {
   // Fetch user chats
   const fetchChats = async () => {
     // No need to send token in headers since it's in cookies
-    const response = await axios.get(`${API_URL}/chat`);
+    const response = await api.get('/chat');
     setChats(response.data);
   };
 
   const fetchMessages = async (chatId) => {
     // No need to send token in headers since it's in cookies
-    const response = await axios.get(`${API_URL}/chat/${chatId}/messages`);
+    const response = await api.get(`/chat/${chatId}/messages`);
     setMessages(response.data);
   };
 
@@ -45,7 +51,7 @@ const Chat = () => {
     // Save to database
     try {
       // No need to send token in headers since it's in cookies
-      const response = await axios.post(`${API_URL}/chat/message`, messageData);
+      const response = await api.post(`/chat/message`, messageData);
       
       // Add message to UI after successful save
       setMessages(prev => [...prev, response.data]);

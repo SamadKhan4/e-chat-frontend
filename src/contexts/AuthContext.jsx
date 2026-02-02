@@ -9,6 +9,12 @@ const API_URL = 'https://e-chat-production.up.railway.app/api';
 // Configure axios to include credentials (cookies)
 axios.defaults.withCredentials = true;
 
+// Create an instance of axios with credentials enabled
+const api = axios.create({
+  baseURL: 'https://e-chat-production.up.railway.app/api',
+  withCredentials: true,
+});
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -16,7 +22,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     setLoading(true);
     try {
-      const response = await axios.post(`${API_URL}/auth/login`, {
+      const response = await api.post(`/auth/login`, {
         email,
         password
       });
@@ -34,7 +40,7 @@ export const AuthProvider = ({ children }) => {
   const register = async (name, email, password) => {
     setLoading(true);
     try {
-      const response = await axios.post(`${API_URL}/auth/register`, {
+      const response = await api.post(`/auth/register`, {
         name,
         email,
         password
