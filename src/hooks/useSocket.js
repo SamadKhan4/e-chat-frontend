@@ -11,15 +11,33 @@ export const useSocket = (user, onMessageReceived) => {
       // Extract token from document.cookie
       const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
       
+      console.log('Connecting socket with token:', !!token);
+      
       socketInstance = io(SOCKET_URL, {
-        withCredentials: true, // Enable cookies
+        withCredentials: true,
+        transports: ['websocket', 'polling'],
         auth: {
-          token: token // Send token in auth as backup
-        }
+          token: token
+        },
+        query: {
+          token: token // Also send as query param for fallback
+        },
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+        timeout: 10000
       });
       
       socketInstance.on('connected', () => {
         console.log('Connected to server');
+      });
+      
+      socketInstance.on('connect_error', (error) => {
+        console.error('Socket connection error:', error.message);
+      });
+      
+      socketInstance.on('disconnect', (reason) => {
+        console.log('Socket disconnected:', reason);
       });
       
       socketInstance.on('receive_message', (message) => {
