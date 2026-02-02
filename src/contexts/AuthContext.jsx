@@ -15,6 +15,31 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// Function to get token from either cookies or localStorage
+const getToken = () => {
+  // Try to get from cookies first
+  const cookieToken = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+  if (cookieToken) {
+    return cookieToken;
+  }
+  // Fallback to localStorage
+  return localStorage.getItem('token');
+};
+
+// Function to set token in both cookies (via backend) and localStorage as fallback
+const setToken = (token) => {
+  // Store in localStorage as fallback
+  localStorage.setItem('token', token);
+};
+
+// Function to clear token from localStorage
+const clearToken = () => {
+  // Clear from localStorage
+  localStorage.removeItem('token');
+  // Clear cookie
+  document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -27,7 +52,8 @@ export const AuthProvider = ({ children }) => {
         password
       });
       
-      // Token is now stored in cookies via backend, no need to store in localStorage
+      // Store token in localStorage as fallback
+      setToken(response.data.token);
       setUser(response.data);
       return response.data;
     } catch (error) {
@@ -46,7 +72,8 @@ export const AuthProvider = ({ children }) => {
         password
       });
       
-      // Token is now stored in cookies via backend, no need to store in localStorage
+      // Store token in localStorage as fallback
+      setToken(response.data.token);
       setUser(response.data);
       return response.data;
     } catch (error) {
@@ -57,8 +84,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    // Clear token cookie by setting expiration to past
-    document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    // Clear token from both localStorage and cookie
+    clearToken();
     setUser(null);
   };
 

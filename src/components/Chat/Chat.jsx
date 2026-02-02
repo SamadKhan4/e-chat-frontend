@@ -14,6 +14,17 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// Function to get token from either cookies or localStorage
+const getToken = () => {
+  // Try to get from cookies first
+  const cookieToken = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+  if (cookieToken) {
+    return cookieToken;
+  }
+  // Fallback to localStorage
+  return localStorage.getItem('token');
+};
+
 const API_URL = 'https://e-chat-production.up.railway.app/api';
 
 const Chat = () => {
@@ -25,14 +36,18 @@ const Chat = () => {
 
   // Fetch user chats
   const fetchChats = async () => {
-    // No need to send token in headers since it's in cookies
-    const response = await api.get('/chat');
+    const token = getToken();
+    const response = await api.get('/chat', {
+      headers: token ? { Authorization: `Bearer ${token}` } : {}
+    });
     setChats(response.data);
   };
 
   const fetchMessages = async (chatId) => {
-    // No need to send token in headers since it's in cookies
-    const response = await api.get(`/chat/${chatId}/messages`);
+    const token = getToken();
+    const response = await api.get(`/chat/${chatId}/messages`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {}
+    });
     setMessages(response.data);
   };
 
@@ -50,8 +65,10 @@ const Chat = () => {
     
     // Save to database
     try {
-      // No need to send token in headers since it's in cookies
-      const response = await api.post(`/chat/message`, messageData);
+      const token = getToken();
+      const response = await api.post(`/chat/message`, messageData, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
       
       // Add message to UI after successful save
       setMessages(prev => [...prev, response.data]);

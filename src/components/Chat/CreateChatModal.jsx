@@ -8,6 +8,17 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// Function to get token from either cookies or localStorage
+const getToken = () => {
+  // Try to get from cookies first
+  const cookieToken = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+  if (cookieToken) {
+    return cookieToken;
+  }
+  // Fallback to localStorage
+  return localStorage.getItem('token');
+};
+
 const CreateChatModal = ({ isOpen, onClose, onCreateChat, currentUser }) => {
   const [userId, setUserId] = useState('');
   const [loading, setLoading] = useState(false);
@@ -18,9 +29,11 @@ const CreateChatModal = ({ isOpen, onClose, onCreateChat, currentUser }) => {
 
     setLoading(true);
     try {
-      // No need to send token in headers since it's in cookies
+      const token = getToken();
       // Send email instead of userId
-      const response = await api.post('/chat', { email: userId });
+      const response = await api.post('/chat', { email: userId }, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
       
       onCreateChat(response.data);
       setUserId('');
