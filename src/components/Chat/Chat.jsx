@@ -35,19 +35,29 @@ const Chat = () => {
   };
 
   const sendMessage = async (content) => {
-    if (!activeChat) return;
+    if (!activeChat || !socket) return;
     
     const messageData = {
       content: content,
-      chatId: activeChat._id
+      chatId: activeChat._id,
+      sender: user
     };
     
-    const token = localStorage.getItem('token');
-    const response = await axios.post(`${API_URL}/chat/message`, messageData, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    // Emit to socket for other users
+    socket.emit('send_message', messageData);
     
-    setMessages(prev => [...prev, response.data]);
+    // Save to database
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.post(`${API_URL}/chat/message`, messageData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      // Add message to UI after successful save
+      setMessages(prev => [...prev, response.data]);
+    } catch (error) {
+      console.error('Failed to save message to database:', error);
+    }
   };
 
   const handleCreateChat = (newChat) => {
@@ -62,10 +72,19 @@ const Chat = () => {
     if (activeChat && message.chat === activeChat._id) {
       setMessages(prev => [...prev, message]);
     }
+    
+    // Also update the chat list to show latest message
+    setChats(prevChats => 
+      prevChats.map(chat => 
+        chat._id === message.chat 
+          ? { ...chat, latestMessage: message } 
+          : chat
+      )
+    );
   };
 
   // Initialize socket
-  useSocket(user, handleNewMessage);
+  const socket = useSocket(user, handleNewMessage);
 
   // Fetch chats when user is available
   if (user && chats.length === 0) {

@@ -3,31 +3,39 @@ import io from 'socket.io-client';
 
 const SOCKET_URL = 'https://e-chat-production.up.railway.app';
 
+let socketInstance = null;
+
 export const useSocket = (user, onMessageReceived) => {
   useEffect(() => {
-    if (user) {
+    if (user && !socketInstance) {
       const token = localStorage.getItem('token');
-      const socket = io(SOCKET_URL, {
+      socketInstance = io(SOCKET_URL, {
         auth: {
           token: token
         }
       });
       
-      socket.on('connected', () => {
+      socketInstance.on('connected', () => {
         console.log('Connected to server');
       });
       
-      socket.on('receive_message', (message) => {
+      socketInstance.on('receive_message', (message) => {
         if (onMessageReceived) {
           onMessageReceived(message);
         }
       });
       
-      return () => {
-        socket.close();
-      };
+      // Setup user connection
+      socketInstance.emit('setup', user);
     }
+    
+    return () => {
+      if (socketInstance) {
+        socketInstance.close();
+        socketInstance = null;
+      }
+    };
   }, [user, onMessageReceived]);
 
-  return null;
+  return socketInstance;
 };
