@@ -6,6 +6,9 @@ const AuthContext = createContext();
 
 const API_URL = 'https://e-chat-production.up.railway.app/api';
 
+// Configure axios to include credentials (cookies)
+axios.defaults.withCredentials = true;
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -18,7 +21,7 @@ export const AuthProvider = ({ children }) => {
         password
       });
       
-      localStorage.setItem('token', response.data.token);
+      // Token is now stored in cookies via backend, no need to store in localStorage
       setUser(response.data);
       return response.data;
     } catch (error) {
@@ -37,7 +40,7 @@ export const AuthProvider = ({ children }) => {
         password
       });
       
-      localStorage.setItem('token', response.data.token);
+      // Token is now stored in cookies via backend, no need to store in localStorage
       setUser(response.data);
       return response.data;
     } catch (error) {
@@ -48,7 +51,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
+    // Clear token cookie by setting expiration to past
+    document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     setUser(null);
   };
 

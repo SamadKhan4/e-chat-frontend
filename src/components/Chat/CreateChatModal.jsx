@@ -14,11 +14,9 @@ const CreateChatModal = ({ isOpen, onClose, onCreateChat, currentUser }) => {
 
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      // No need to send token in headers since it's in cookies
       // Send email instead of userId
-      const response = await axios.post(`${API_URL}/chat`, { email: userId }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await axios.post(`${API_URL}/chat`, { email: userId });
       
       onCreateChat(response.data);
       setUserId('');

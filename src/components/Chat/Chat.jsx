@@ -19,18 +19,14 @@ const Chat = () => {
 
   // Fetch user chats
   const fetchChats = async () => {
-    const token = localStorage.getItem('token');
-    const response = await axios.get(`${API_URL}/chat`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    // No need to send token in headers since it's in cookies
+    const response = await axios.get(`${API_URL}/chat`);
     setChats(response.data);
   };
 
   const fetchMessages = async (chatId) => {
-    const token = localStorage.getItem('token');
-    const response = await axios.get(`${API_URL}/chat/${chatId}/messages`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    // No need to send token in headers since it's in cookies
+    const response = await axios.get(`${API_URL}/chat/${chatId}/messages`);
     setMessages(response.data);
   };
 
@@ -48,10 +44,8 @@ const Chat = () => {
     
     // Save to database
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.post(`${API_URL}/chat/message`, messageData, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      // No need to send token in headers since it's in cookies
+      const response = await axios.post(`${API_URL}/chat/message`, messageData);
       
       // Add message to UI after successful save
       setMessages(prev => [...prev, response.data]);

@@ -8,10 +8,10 @@ let socketInstance = null;
 export const useSocket = (user, onMessageReceived) => {
   useEffect(() => {
     if (user && !socketInstance) {
-      const token = localStorage.getItem('token');
       socketInstance = io(SOCKET_URL, {
+        withCredentials: true, // Enable cookies
         auth: {
-          token: token
+          // No need to send token in auth since it will be sent via cookies
         }
       });
       
