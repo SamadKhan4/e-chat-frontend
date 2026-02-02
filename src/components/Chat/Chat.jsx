@@ -78,6 +78,7 @@ const Chat = () => {
         <ChatList 
           chats={chats} 
           activeChat={activeChat} 
+          currentUser={user}
           onChatSelect={(chat) => {
             setActiveChat(chat);
             fetchMessages(chat._id);
